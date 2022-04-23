@@ -1,4 +1,5 @@
 두 개의 터미널에서 cli container에 접속
+todo: sh로 접속하면 채널 접속 내역들 유지할 수 있어 보이긴 한데 아직 테스트는 안 해 봄
 docker exec -it cli-org1 bash
 docker exec -it cli-org2 bash
 
@@ -40,7 +41,8 @@ peer chaincode install -n mycc -v 1.0 -p github.com/hyperledger/fabric-samples/c
 CORE_PEER_ADDRESS=peer2-org2:7051 peer chaincode install -n mycc -v 1.0 -p github.com/hyperledger/fabric-samples/chaincode/abac/go/
 
 chaincode폴더 내에 여러 체인코드들이 있다.
-go로 설정된 부분들 -p에 설정하고 -n의 네임을 수정해서 여러가지 설치해볼 수 있음
+go로 설정된 부분들 -p에 설정하고 -n의 네임을 수정해서 여러가지 설치할 수 있다.
+fabcar chaincode_example02 테스트 해봄(abac랑 동작은 똑같은 듯?)
 
 튜토리얼 과정에서 설정해 놓은 값 때문에 abac는 org2에서만 init이 가능하다. 나중에 제한 조건 걸고 싶으면 이렇게 하면 될 듯
 instantiate 후에는 체인코드를 활용할 수 있다.
@@ -56,3 +58,4 @@ chaincode invoke를 통해 invoke 함수를 실행할 수 있다.
 아래는 a에서 10을 가져다가 b에 10 주는 코드
 실행하는 컨테이너에 따라 org1 org2는 설정해서 실행, 실행 후 query로 다시 확인할 수 있음
 peer chaincode invoke -C mychannel -n mycc -c '{"Args":["invoke","a","b","10"]}' --tls --cafile /tmp/hyperledger/org1/peer1/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem
+
