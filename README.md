@@ -100,6 +100,8 @@ chaincode invoke를 통해 invoke 함수를 실행할 수 있다.
 
 
 위의 과정과 비슷하게 투표를 위한 임시 체인코드를 초기화하여 올린다.
+체인코드는 https://github.com/wonyongHwang/kopoBlockChainVote/blob/master/Chaincode/chaincode.go 를 사용
+
 ![image](https://user-images.githubusercontent.com/78287136/164878472-416f7ad0-fcf2-4a3e-9a81-e2b87f4d91a9.png)
 
 
