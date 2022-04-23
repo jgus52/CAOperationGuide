@@ -95,3 +95,24 @@ chaincode invoke를 통해 invoke 함수를 실행할 수 있다.
 
     peer chaincode invoke -C mychannel -n mycc -c '{"Args":["invoke","a","b","10"]}' --tls --cafile /tmp/hyperledger/org1/peer1/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem
 
+
+
+
+
+위의 과정과 비슷하게 투표를 위한 임시 체인코드를 초기화하여 올린다.
+![image](https://user-images.githubusercontent.com/78287136/164878472-416f7ad0-fcf2-4a3e-9a81-e2b87f4d91a9.png)
+
+
+![image](https://user-images.githubusercontent.com/78287136/164878352-f0002b4f-79a9-4a8f-aedc-79cc8f4fdfed.png)
+
+
+A와 B에게 투표할 때, 하나씩 올라가는 것을 보여줄 수 있다.  
+앞으로 수정을 통해 클라이언트에서 암호화 한 암호문을 올리도록 수정한다.
+
+![image](https://user-images.githubusercontent.com/78287136/164878510-ceb7e449-efdb-4dcb-bd8d-c7df00a67a95.png)
+
+
+![image](https://user-images.githubusercontent.com/78287136/164878519-f41d53ae-ac7c-4140-bf73-0adcb515ed12.png)
+
+
+![image](https://user-images.githubusercontent.com/78287136/164878421-12476508-d465-4303-b1a7-effb56039be1.png)
