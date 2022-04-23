@@ -1,9 +1,15 @@
 ca-tls  
 TLS를 맡는 인증서 발급  
+
+
 rca_org0,rca_org1,rca_org2  
 각 org들에서 관리할 노드들 등록   
+
+
 enrollOrg0,enrollOrg1,enrollOrg2  
 각 노드들에서 등록한 peer, orderer, admin등의 identity 설정  
+
+
 bringupcontainers  
 설정값으로 genesis.block과 channel.tx발급  
 
