@@ -17,6 +17,19 @@ Organizations:
 
     # MSPDir is the filesystem path which contains the MSP configuration
     MSPDir: /tmp/hyperledger/org0/msp
+    Policies:
+        Readers:
+            Type: Signature
+            Rule: "OR('org0MSP.member')"
+        Writers:
+            Type: Signature
+            Rule: "OR('org0MSP.member')"
+        Admins:
+            Type: Signature
+            Rule: "OR('org0MSP.admin')"
+        Endorsement:
+            Type: Signature
+            Rule: "OR('org0MSP.member')"    
 
   - &org1
 
@@ -27,29 +40,25 @@ Organizations:
 
     # MSPDir is the filesystem path which contains the MSP configuration
     MSPDir: /tmp/hyperledger/org1/msp
-
+    Policies:
+        Readers:
+            Type: Signature
+            Rule: "OR('org1MSP.member')"
+        Writers:
+            Type: Signature
+            Rule: "OR('org1MSP.member')"
+        Admins:
+            Type: Signature
+            Rule: "OR('org1MSP.admin')"
+        Endorsement:
+            Type: Signature
+            Rule: "OR('org1MSP.member')"
+      
     AnchorPeers:
         # AnchorPeers defines the location of peers which can be used
         # for cross org gossip communication.  Note, this value is only
         # encoded in the genesis block in the Application section context
         - Host: peer1-org1
-          Port: 7051
-
-  - &org2
-
-    Name: org2
-
-    # ID to load the MSP definition as
-    ID: org2MSP
-
-    # MSPDir is the filesystem path which contains the MSP configuration
-    MSPDir: /tmp/hyperledger/org2/msp
-
-    AnchorPeers:
-        # AnchorPeers defines the location of peers which can be used
-        # for cross org gossip communication.  Note, this value is only
-        # encoded in the genesis block in the Application section context
-        - Host: peer1-org2
           Port: 7051
 
 ################################################################################
@@ -65,8 +74,82 @@ Application: &ApplicationDefaults
    # Organizations is the list of orgs which are defined as participants on
    # the application side of the network
    Organizations:
+   Policies: # Application 정책 설정
+       Readers:
+           Type: ImplicitMeta
+           Rule: "ANY Readers"
+       Writers:
+           Type: ImplicitMeta
+           Rule: "ANY Writers"
+       Admins:
+           Type: Signature
+           Rule: "OR('org1MSP.admin')" 
+       LifecycleEndorsement:
+           Type: ImplicitMeta
+           Rule: "ANY Endorsement"
+       Endorsement:
+           Type: ImplicitMeta
+           Rule: "ANY Endorsement"   
 
+Channel: &ChannelDefaults
+    # Policies defines the set of policies at this level of the config tree
+    # For Channel policies, their canonical path is
+    #   /Channel/<PolicyName>
+    Policies:
+        # Who may invoke the 'Deliver' API
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        # Who may invoke the 'Broadcast' API
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        # By default, who may modify elements at this config level
+        Admins:
+            Type: Signature
+            Rule: "OR('org1MSP.admin')"
 
+Orderer: &OrdererDefaults
+    # Orderer Type: The orderer implementation to start
+    # Available types are "solo" and "kafka"
+  OrdererType: solo
+  Addresses:
+  - orderer1-org0:7050
+  # Batch Timeout: The amount of time to wait before creating a batch
+  BatchTimeout: 2s
+  # Batch Size: Controls the number of messages batched into a block
+  BatchSize:
+    # Max Message Count: The maximum number of messages to permit in a batch
+    MaxMessageCount: 10
+    # Absolute Max Bytes: The absolute maximum number of bytes allowed for
+    # the serialized messages in a batch.
+    AbsoluteMaxBytes: 99 MB
+    # Preferred Max Bytes: The preferred maximum number of bytes allowed for
+    # the serialized messages in a batch. A message larger than the preferred
+    # max bytes will result in a batch larger than preferred max bytes.
+    PreferredMaxBytes: 512 KB
+    # Kafka:
+    #   # Brokers: A list of Kafka brokers to which the orderer connects
+    #   # NOTE: Use IP:port notation
+    #   Brokers:
+    #     - 127.0.0.1:9092
+    # Organizations is the list of orgs which are defined as participants on
+    # the orderer side of the network
+  Organizations:
+    - *org0
+  Policies:
+      Readers:
+          Type: ImplicitMeta
+          Rule: "ANY Readers"
+      Writers:
+          Type: ImplicitMeta
+          Rule: "ANY Writers"
+      Admins:
+          Type: Signature
+          Rule: "OR('org1MSP.admin')"
+      BlockValidation:
+          Type: ImplicitMeta
+          Rule: "ANY Writers"
 ################################################################################
 #
 #   Profile
@@ -78,54 +161,28 @@ Application: &ApplicationDefaults
 Profiles:
 
   OrgsOrdererGenesis:
-    Orderer:
-        # Orderer Type: The orderer implementation to start
-        # Available types are "solo" and "kafka"
-      OrdererType: solo
-      Addresses:
-      - orderer1-org0:7050
-
-      # Batch Timeout: The amount of time to wait before creating a batch
-      BatchTimeout: 2s
-
-      # Batch Size: Controls the number of messages batched into a block
-      BatchSize:
-
-        # Max Message Count: The maximum number of messages to permit in a batch
-        MaxMessageCount: 10
-
-        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
-        # the serialized messages in a batch.
-        AbsoluteMaxBytes: 99 MB
-
-        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
-        # the serialized messages in a batch. A message larger than the preferred
-        # max bytes will result in a batch larger than preferred max bytes.
-        PreferredMaxBytes: 512 KB
-
-        # Kafka:
-        #   # Brokers: A list of Kafka brokers to which the orderer connects
-        #   # NOTE: Use IP:port notation
-        #   Brokers:
-        #     - 127.0.0.1:9092
-
-        # Organizations is the list of orgs which are defined as participants on
-        # the orderer side of the network
-      Organizations:
-        - *org0
+    <<: *ChannelDefaults
+    Orderer: 
+      <<: *OrdererDefaults
 
     Consortiums:
-
         SampleConsortium:
-
           Organizations:
-            - *org1
-            - *org2
+            - *org1      
 
   OrgsChannel:
     Consortium: SampleConsortium
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: Signature
+            Rule: "OR('org1MSP.admin')" # Channel 관련 정책은 apeer조직의 어드인 서명이 필요함    
     Application:
         <<: *ApplicationDefaults
         Organizations:
         - *org1
-        - *org2
